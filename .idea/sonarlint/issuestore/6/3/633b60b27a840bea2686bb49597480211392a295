@@ -1,0 +1,15 @@
+
+`	java:S112_"FDefine and throw a dedicated exception instead of using a generic one.(ÉÎ‚öøÿÿÿÿ
+`	java:S112c"FDefine and throw a dedicated exception instead of using a generic one.(“¦Ñ€ûÿÿÿÿ
+l
+java:S3008$"VRename this field "BUFFER_SIZE" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(öÅóÕ
+C	java:S108P")Either remove or fill this block of code.(©¥–Üøÿÿÿÿ
+O
+java:S1118"":Add a private constructor to hide the implicit public one.(Öõ\
+[
+java:S2259I"@A "NullPointerException" could be thrown; "in" is nullable here.(€¶º‡ıÿÿÿÿ
+W
+java:S2259N"AA "NullPointerException" could be thrown; "out" is nullable here.(„¸Ç§
+0
+java:S1220""Move this file to a named package.
+C	java:S108K")Either remove or fill this block of code.(©¥–Üøÿÿÿÿ

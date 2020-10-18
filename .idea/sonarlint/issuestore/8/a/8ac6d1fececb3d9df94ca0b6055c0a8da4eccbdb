@@ -1,0 +1,16 @@
+
+<
+java:S1168'"&Return an empty array instead of null.(¥¹ï
+H
+java:S1444"+Make this "public static count" field final(˜“ÿ±8ó¦ÖƒÓ.
+0
+java:S1220""Move this file to a named package.
+n
+java:S1104"QMake count a static final constant or non-public and provide accessors if needed.(˜“ÿ±8ó¦ÖƒÓ.
+`
+java:S3252K"JUse static access with "java.lang.ClassLoader" for "getSystemClassLoader".(ÍÚ» 
+U	java:S106R"9Replace this use of System.out or System.err by a logger.(­¸ÿ»8õÂµƒÓ.
+Z	java:S106O"9Replace this use of System.out or System.err by a logger.(Ž³ð¸ûÿÿÿÿ8‘º×ƒÓ.
+N	java:S106P"9Replace this use of System.out or System.err by a logger.(œ¤“š
+X
+java:S26965"6Make the enclosing method "static" or remove this set.(ëæûÿÿÿÿÿ8ì¶ÕƒÓ.
