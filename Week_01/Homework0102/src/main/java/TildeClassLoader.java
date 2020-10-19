@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 
 /**
  * @author Hout
@@ -16,21 +17,12 @@ public class TildeClassLoader extends ClassLoader {
     }
 
     @Override
-    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-        Class<?> clazz = this.findLoadedClass(name);
-        if (clazz == null) {
-            byte[] bytes = loadBytesForClassWithTilde(name);
-            if (bytes != null) {
-                clazz = defineClass(name, bytes, 0, bytes.length);
-                return clazz;
-            }
-        } else {
-            if (resolve) {
-                this.resolveClass(clazz);
-            }
-            return clazz;
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        byte[] bytes = loadBytesForClassWithTilde(name);
+        if (bytes != null) {
+            return defineClass(name, bytes, 0, bytes.length);
         }
-        return super.loadClass(name, resolve);
+        return super.findClass(name);
     }
 
     private byte[] loadBytesForClassWithTilde(String name) throws ClassNotFoundException {
@@ -71,14 +63,16 @@ public class TildeClassLoader extends ClassLoader {
 
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         TildeClassLoader tildeClassLoader = new TildeClassLoader(TildeClassLoader.getSystemClassLoader());
         try {
             Class<?> aClass = tildeClassLoader.loadClass("Hello");
             Class<?> aClass2 = tildeClassLoader.loadClass("Hello");
+            Method hello = aClass.getDeclaredMethod("hello");
+            hello.setAccessible(true);
+            hello.invoke(aClass.newInstance());
             System.out.println(count);
-            System.out.println(aClass.equals(aClass2));
-        } catch (ClassNotFoundException e) {
+        } catch (Exception e) {
             System.out.println("加载失败");
             e.printStackTrace();
         }
