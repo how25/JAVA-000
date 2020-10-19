@@ -131,3 +131,5 @@ local.properties
 
 # idea config
 .idea/
+
+out/
