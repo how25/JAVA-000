@@ -1,0 +1,14 @@
+start
+2020-10-26T00:11:57.446-0800: [GC (Allocation Failure) 2020-10-26T00:11:57.446-0800: [ParNew: 681600K->85184K(766784K), 0.0814891 secs] 681600K->179159K(4109120K), 0.0815848 secs] [Times: user=0.19 sys=0.47, real=0.08 secs] 
+2020-10-26T00:11:57.630-0800: [GC (Allocation Failure) 2020-10-26T00:11:57.630-0800: [ParNew: 766784K->85184K(766784K), 0.0823626 secs] 860759K->311138K(4109120K), 0.0824464 secs] [Times: user=0.19 sys=0.48, real=0.08 secs] 
+2020-10-26T00:11:57.814-0800: [GC (Allocation Failure) 2020-10-26T00:11:57.814-0800: [ParNew: 766784K->85184K(766784K), 0.0966878 secs] 992738K->450753K(4109120K), 0.0967754 secs] [Times: user=0.91 sys=0.05, real=0.10 secs] 
+2020-10-26T00:11:58.011-0800: [GC (Allocation Failure) 2020-10-26T00:11:58.011-0800: [ParNew: 766784K->85184K(766784K), 0.1025032 secs] 1132353K->596154K(4109120K), 0.1025886 secs] [Times: user=0.96 sys=0.05, real=0.10 secs] 
+creat: 10290
+Heap
+ par new generation   total 766784K, used 112737K [0x00000006c0000000, 0x00000006f4000000, 0x00000006f4000000)
+  eden space 681600K,   4% used [0x00000006c0000000, 0x00000006c1ae85b8, 0x00000006e99a0000)
+  from space 85184K, 100% used [0x00000006e99a0000, 0x00000006eecd0000, 0x00000006eecd0000)
+  to   space 85184K,   0% used [0x00000006eecd0000, 0x00000006eecd0000, 0x00000006f4000000)
+ concurrent mark-sweep generation total 3342336K, used 510970K [0x00000006f4000000, 0x00000007c0000000, 0x00000007c0000000)
+ Metaspace       used 2680K, capacity 4486K, committed 4864K, reserved 1056768K
+  class space    used 292K, capacity 386K, committed 512K, reserved 1048576K
