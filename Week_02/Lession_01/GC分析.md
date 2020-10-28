@@ -1067,7 +1067,7 @@ Heap
 1. 随着内存达到 256m 后, 应用已经不出现OOM了, 说明增大内存可以防止在内存过小时大量生成存活对象导致的OOM;
 2. 内存 512m Full GC 次数明细比256m 低, 而且在内存达到2g之后, 不再出现 Full GC (表示 CMS 没有参与 GC), 说明增大内存可以减少 Full GC 的频率;
 3. YoungGC(ParNew) 随着内存的增大, 生成对象数没有增加, 说明不是内存越大性能越好; 但是可以降低 GC 的频率, 但是单次 GC 时间会变长; 而 CMS GC 各阶段时间基本为0, 可能这个案例无法对 CMS 进行有效测试;
-4. 在 4G 内存下 CMS GC 和 ParallelGC 都只有 YoungGC, 而 GMS 参数下对象创建数明细好于 ParallelGC 参数, 经过笔者在上面环境下的多次测试结果对象创建数和上面所列日志基本相同, 但是 ParallelGC 的总 GC 时间的确少于 ParNew 的总 GC 时间, 符合其吞吐量优先的设定(吞吐量 = 运行用户代代码时间/（运行用户代码时间+垃圾收集时间))
+4. 在 4G 内存下 CMS GC 和 ParallelGC 都只有 YoungGC, 而 GMS 参数下对象创建数明细好于 ParallelGC 参数, 经过笔者在上面环境下的多次测试结果对象创建数和上面所列日志基本相同, 但是 ParallelYoungGC 的总 GC 时间的确少于 ParNew 的总 GC 时间, 符合其吞吐量优先的设定(吞吐量 = 运行用户代代码时间/（运行用户代码时间+垃圾收集时间))
 
 ## G1
 
@@ -1110,8 +1110,443 @@ OOM
 
 ## wrk 测试
 
-### 并行
+### SerialGC
+#### 512m
+##### 第一次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     7.28ms   24.22ms 496.80ms   97.09%
+    Req/Sec    16.71k     5.71k   26.65k    83.22%
+  Latency Distribution
+     50%    3.28ms
+     75%    4.82ms
+     90%    8.30ms
+     99%  115.55ms
+  1479056 requests in 30.39s, 176.58MB read
+  Socket errors: connect 52, read 232, write 0, timeout 0
+Requests/sec:  48670.65
+Transfer/sec:      5.81MB
+```
+
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    35.11ms   95.51ms 621.62ms   90.23%
+    Req/Sec    18.95k     5.66k   31.63k    87.48%
+  Latency Distribution
+     50%    3.28ms
+     75%    4.77ms
+     90%  123.67ms
+     99%  441.77ms
+  1337806 requests in 30.04s, 159.72MB read
+  Socket errors: connect 52, read 415, write 0, timeout 0
+Requests/sec:  44539.66
+Transfer/sec:      5.32MB
+```
+
+#### 1g
+##### 第一次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    15.88ms   60.67ms 683.00ms   95.31%
+    Req/Sec    17.84k     6.26k   26.90k    82.28%
+  Latency Distribution
+     50%    3.39ms
+     75%    4.65ms
+     90%   10.35ms
+     99%  368.15ms
+  1506761 requests in 30.10s, 179.89MB read
+  Socket errors: connect 52, read 244, write 0, timeout 0
+Requests/sec:  50052.40
+Transfer/sec:      5.98MB
+```
+
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    34.81ms  112.46ms 963.42ms   92.12%
+    Req/Sec    19.77k     5.81k   26.78k    88.96%
+  Latency Distribution
+     50%    3.28ms
+     75%    4.39ms
+     90%   71.35ms
+     99%  613.11ms
+  1191785 requests in 30.04s, 142.29MB read
+  Socket errors: connect 52, read 126, write 0, timeout 0
+Requests/sec:  39670.85
+Transfer/sec:      4.74MB
+```
+
+#### 2g
+##### 第一次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     7.64ms   22.59ms 445.86ms   95.98%
+    Req/Sec    17.51k     6.20k   34.58k    82.33%
+  Latency Distribution
+     50%    3.32ms
+     75%    4.36ms
+     90%    7.61ms
+     99%  121.69ms
+  1538358 requests in 30.07s, 183.66MB read
+  Socket errors: connect 52, read 232, write 0, timeout 0
+Requests/sec:  51155.31
+Transfer/sec:      6.11MB
+```
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    33.61ms  101.24ms 966.58ms   91.19%
+    Req/Sec    19.36k     6.12k   33.38k    86.60%
+  Latency Distribution
+     50%    3.18ms
+     75%    4.16ms
+     90%   97.45ms
+     99%  469.00ms
+  1378758 requests in 30.08s, 164.61MB read
+  Socket errors: connect 52, read 689, write 0, timeout 0
+Requests/sec:  45841.72
+Transfer/sec:      5.47MB
+```
+
+
+### 并行 
+#### 512m
+##### 第一次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    23.68ms  108.19ms   1.11s    96.20%
+    Req/Sec    17.01k     6.16k   25.29k    80.78%
+  Latency Distribution
+     50%    3.40ms
+     75%    4.93ms
+     90%   11.24ms
+     99%  708.58ms
+  1441160 requests in 30.04s, 172.06MB read
+  Socket errors: connect 52, read 246, write 0, timeout 0
+Requests/sec:  47967.42
+Transfer/sec:      5.73MB
+```
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    36.79ms  118.12ms   1.02s    91.98%
+    Req/Sec    19.82k     5.34k   25.59k    90.47%
+  Latency Distribution
+     50%    3.24ms
+     75%    4.34ms
+     90%   87.74ms
+     99%  611.10ms
+  1299081 requests in 30.06s, 155.10MB read
+  Socket errors: connect 52, read 268, write 0, timeout 0
+Requests/sec:  43209.53
+Transfer/sec:      5.16MB
+```
+
+#### 1g
+##### 第一次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    17.15ms   83.44ms 951.87ms   97.01%
+    Req/Sec    18.41k     5.98k   33.38k    85.41%
+  Latency Distribution
+     50%    3.34ms
+     75%    4.47ms
+     90%    7.55ms
+     99%  535.01ms
+  1580716 requests in 30.06s, 188.72MB read
+  Socket errors: connect 52, read 226, write 0, timeout 0
+Requests/sec:  52584.72
+Transfer/sec:      6.28MB
+```
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    35.38ms  100.05ms 571.06ms   90.70%
+    Req/Sec    19.26k     6.53k   29.72k    84.40%
+  Latency Distribution
+     50%    3.23ms
+     75%    4.29ms
+     90%  111.30ms
+     99%  491.33ms
+  1363530 requests in 30.08s, 162.79MB read
+  Socket errors: connect 52, read 838, write 0, timeout 0
+Requests/sec:  45329.47
+Transfer/sec:      5.41MB
+```
+
+#### 2g
+##### 第一次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    17.27ms   78.24ms 904.12ms   96.44%
+    Req/Sec    17.63k     6.35k   25.01k    82.01%
+  Latency Distribution
+     50%    3.50ms
+     75%    4.41ms
+     90%    8.45ms
+     99%  484.11ms
+  1514808 requests in 30.07s, 180.85MB read
+  Socket errors: connect 52, read 226, write 0, timeout 0
+Requests/sec:  50379.44
+Transfer/sec:      6.01MB
+```
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    44.77ms  147.30ms   1.24s    91.99%
+    Req/Sec    20.00k     5.80k   34.68k    87.99%
+  Latency Distribution
+     50%    3.36ms
+     75%    4.14ms
+     90%  105.06ms
+     99%  827.27ms
+  1145376 requests in 30.10s, 136.75MB read
+  Socket errors: connect 52, read 268, write 0, timeout 0
+Requests/sec:  38049.96
+Transfer/sec:      4.54MB
+```
+
 
 ### CMS
+#### 512m
+##### 第一次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     7.21ms   16.47ms 313.68ms   95.30%
+    Req/Sec    15.97k     5.92k   29.05k    79.14%
+  Latency Distribution
+     50%    3.38ms
+     75%    5.14ms
+     90%    9.72ms
+     99%  101.39ms
+  1415697 requests in 30.06s, 169.02MB read
+  Socket errors: connect 52, read 209, write 0, timeout 0
+Requests/sec:  47088.34
+Transfer/sec:      5.62MB
+```
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    37.89ms  114.61ms 842.44ms   91.42%
+    Req/Sec    19.09k     5.08k   34.10k    89.19%
+  Latency Distribution
+     50%    3.20ms
+     75%    4.70ms
+     90%   98.13ms
+     99%  589.26ms
+  1321464 requests in 30.06s, 157.77MB read
+  Socket errors: connect 52, read 292, write 0, timeout 0
+Requests/sec:  43956.32
+Transfer/sec:      5.25MB
+```
+
+#### 1g
+##### 第一次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    34.42ms  146.72ms   1.35s    95.53%
+    Req/Sec    16.81k     5.67k   27.28k    80.48%
+  Latency Distribution
+     50%    3.60ms
+     75%    5.14ms
+     90%   14.69ms
+     99%  945.29ms
+  1396307 requests in 30.07s, 166.70MB read
+  Socket errors: connect 52, read 152, write 0, timeout 0
+Requests/sec:  46432.45
+Transfer/sec:      5.54MB
+```
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    23.84ms  104.73ms   1.04s    95.16%
+    Req/Sec    19.75k     4.47k   28.79k    91.83%
+  Latency Distribution
+     50%    2.78ms
+     75%    3.92ms
+     90%    5.73ms
+     99%  642.89ms
+  1149849 requests in 30.09s, 137.28MB read
+  Socket errors: connect 52, read 422, write 0, timeout 0
+Requests/sec:  38207.61
+Transfer/sec:      4.56MB
+```
+
+#### 2g
+##### 第一次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     8.59ms   23.76ms 400.84ms   95.13%
+    Req/Sec    17.92k     6.10k   34.46k    81.87%
+  Latency Distribution
+     50%    3.37ms
+     75%    4.58ms
+     90%    8.75ms
+     99%  136.18ms
+  1561571 requests in 30.07s, 186.43MB read
+  Socket errors: connect 52, read 146, write 0, timeout 0
+Requests/sec:  51927.88
+Transfer/sec:      6.20MB
+```
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    22.57ms   99.75ms 950.48ms   95.43%
+    Req/Sec    19.50k     6.16k   35.48k    87.50%
+  Latency Distribution
+     50%    2.73ms
+     75%    3.74ms
+     90%    5.18ms
+     99%  612.47ms
+  1149354 requests in 30.10s, 137.22MB read
+  Socket errors: connect 52, read 870, write 0, timeout 0
+Requests/sec:  38183.70
+Transfer/sec:      4.56MB
+```
 
 ### G1
+#### 512m
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     8.22ms   24.70ms 386.90ms   96.02%
+    Req/Sec    16.76k     5.21k   28.40k    81.83%
+  Latency Distribution
+     50%    3.49ms
+     75%    5.02ms
+     90%    9.06ms
+     99%  123.45ms
+  1473804 requests in 30.05s, 175.96MB read
+  Socket errors: connect 52, read 115, write 0, timeout 0
+Requests/sec:  49039.63
+Transfer/sec:      5.85MB
+```
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    42.70ms  113.39ms 980.28ms   89.36%
+    Req/Sec    19.03k     5.66k   28.04k    88.86%
+  Latency Distribution
+     50%    3.38ms
+     75%    5.03ms
+     90%  174.24ms
+     99%  492.06ms
+  1383683 requests in 30.11s, 165.20MB read
+  Socket errors: connect 52, read 139, write 0, timeout 0
+Requests/sec:  45957.89
+Transfer/sec:      5.49MB
+```
+
+#### 1g
+##### 第一次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     9.61ms   25.93ms 345.89ms   94.32%
+    Req/Sec    17.02k     6.31k   26.74k    79.54%
+  Latency Distribution
+     50%    3.23ms
+     75%    4.83ms
+     90%   11.31ms
+     99%  151.81ms
+  1490224 requests in 30.06s, 177.92MB read
+  Socket errors: connect 52, read 121, write 0, timeout 0
+Requests/sec:  49582.49
+Transfer/sec:      5.92MB
+```
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    44.33ms  117.08ms 949.81ms   89.35%
+    Req/Sec    19.01k     6.06k   34.92k    86.77%
+  Latency Distribution
+     50%    3.37ms
+     75%    5.04ms
+     90%  177.69ms
+     99%  535.56ms
+  1404027 requests in 30.07s, 167.63MB read
+  Socket errors: connect 52, read 138, write 0, timeout 0
+Requests/sec:  46695.62
+Transfer/sec:      5.57MB
+```
+
+#### 2g
+##### 第一次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     9.62ms   28.61ms 430.15ms   94.98%
+    Req/Sec    17.29k     6.13k   36.54k    81.58%
+  Latency Distribution
+     50%    3.25ms
+     75%    4.70ms
+     90%   10.09ms
+     99%  156.38ms
+  1518383 requests in 30.10s, 181.28MB read
+  Socket errors: connect 52, read 115, write 0, timeout 0
+Requests/sec:  50443.46
+Transfer/sec:      6.02MB
+```
+##### 第二次
+```shell
+Running 30s test @ http://localhost:8088/api/hello
+  3 threads and 300 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    20.70ms   72.33ms 714.03ms   93.45%
+    Req/Sec    18.80k     6.08k   34.09k    87.65%
+  Latency Distribution
+     50%    2.92ms
+     75%    3.99ms
+     90%    6.43ms
+     99%  363.04ms
+  1157035 requests in 30.06s, 138.14MB read
+  Socket errors: connect 52, read 440, write 0, timeout 0
+Requests/sec:  38487.99
+Transfer/sec:      4.60MB
+```
+
+### 总结
